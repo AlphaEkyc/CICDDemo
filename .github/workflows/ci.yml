@@ -19,10 +19,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore project dependencies
-        run: dotnet restore CICDDemo/CICDDemo.csproj
+        run: dotnet restore CICDdemo/CICDdemo.csproj
 
       - name: Build project
-        run: dotnet build CICDDemo/CICDDemo.csproj --configuration Release --no-restore
+        run: dotnet build CICDdemo/CICDdemo.csproj --configuration Release --no-restore
 
       - name: Publish project
-        run: dotnet publish CICDDemo/CICDDemo.csproj --configuration Release --output ./publish --no-build
+        run: dotnet publish CICDdemo/CICDdemo.csproj --configuration Release --output ./publish --no-build
