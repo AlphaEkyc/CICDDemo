@@ -6,7 +6,7 @@ on:
       - main
 
 jobs:
-  build:
+  build-and-deploy:
     runs-on: ubuntu-latest
 
     steps:
@@ -26,3 +26,27 @@ jobs:
 
       - name: Publish project
         run: dotnet publish CICDdemo/CICDdemo.csproj --configuration Release --output ./publish --no-build
+
+      - name: Copy published files to Linux server temp folder
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 2222
+          source: "publish/*"
+          target: "/home/azureuser/testapi_deploy"
+
+      - name: Deploy to live app folder and restart service
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SERVER_SSH_KEY }}
+          port: 2222
+          script: |
+            sudo mkdir -p /var/www/TestApi
+            sudo rm -rf /var/www/TestApi/*
+            sudo cp -r /home/azureuser/testapi_deploy/publish/* /var/www/TestApi/
+            sudo systemctl restart testapi.service
+            sudo systemctl status testapi.service --no-pager
